@@ -27,7 +27,7 @@ function CountryList({ cities, isLoading }) {
         <CountryItem
           country={country}
           emoji={country.emoji}
-          key={country.emoji}
+          key={country.country}
         />
       ))}
     </ul>
