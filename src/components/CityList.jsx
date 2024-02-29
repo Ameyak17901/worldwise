@@ -11,7 +11,7 @@ function CityList() {
   const { cities, isLoading } = useCities();
   if (isLoading) return <Spinner />;
 
-  if (cities.length == 0)
+  if (!cities)
     return <Message message="Add your first city from the map" />;
   return (
     <ul className={styles.cityList}>

@@ -24,7 +24,7 @@ export function convertToEmoji(countryCode) {
 
 function Form() {
   const [lat, lng] = useUrlPosition();
-  const { createCity } = useCities();
+  const { createCity, isLoadingPosition } = useCities();
 
   const [cityName, setCityName] = useState("");
   const [country, setCountry] = useState("");
@@ -32,7 +32,7 @@ function Form() {
   const [date, setDate] = useState(new Date());
   const [emoji, setEmoji] = useState("");
   const [notes, setNotes] = useState("");
-  const [isLoadingPosition, setIsLoadingPosition] = useState(false);
+  const [isLoading, setIsLoadingPosition] = useState(false);
   const [geoCodingError, setGeoCodingError] = useState("");
   const BASE_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
 
@@ -66,7 +66,7 @@ function Form() {
     },
     [lat, lng, setIsLoadingPosition]
   );
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     if (!cityName || !date) return;
@@ -80,7 +80,8 @@ function Form() {
       position: { lat, lng },
     };
 
-    createCity(newCity);
+    await createCity(newCity);
+    navigate("/app/cities");
   }
 
   if (!lat && !lng)
@@ -91,7 +92,10 @@ function Form() {
   if (geoCodingError) return <Message message={geoCodingError}></Message>;
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form
+      className={`${styles.form} ${isLoading ? styles.loading : ""}`}
+      onSubmit={handleSubmit}
+    >
       <div className={styles.row}>
         <label htmlFor="cityName">City name</label>
         <input
@@ -128,7 +132,7 @@ function Form() {
 
       <div className={styles.buttons}>
         {/* <button>Add</button> */}
-        <Button type="primary">&rarr;</Button>
+        <Button type="primary">Add</Button>
         <Button
           type="back"
           onClick={(e) => {
