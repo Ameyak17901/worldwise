@@ -1,10 +1,5 @@
 /* eslint-disable react/prop-types */
-import {
-  createContext,
-  useEffect,
-  useContext,
-  useReducer,
-} from "react";
+import { createContext, useEffect, useContext, useReducer } from "react";
 const BASE_URL = "http://localhost:9000";
 
 const CitiesContext = createContext();
@@ -29,11 +24,12 @@ function reducer(state, action) {
         isLoading: false,
         cities: action.payload,
       };
-    case "cities/created":
+    case "city/created":
       return {
         ...state,
         isLoading: false,
         cities: [...state.cities, action.payload],
+        currentCity: action.payload,
       };
     case "city/loaded":
       return {
@@ -42,11 +38,12 @@ function reducer(state, action) {
         currentCity: action.payload,
       };
 
-    case "cities/deleted":
+    case "city/deleted":
       return {
         ...state,
         isLoading: false,
         cities: state.cities.filter((city) => city.id !== action.payload),
+        currentCity: {},
       };
     case "rejected":
       return {
@@ -61,10 +58,10 @@ function reducer(state, action) {
 }
 
 function CitiesProvider({ children }) {
-  const [{ cities, isLoading, currentCity }, dispatch] = useReducer({
+  const [{ cities, isLoading, currentCity, error }, dispatch] = useReducer(
     reducer,
-    initialState,
-  });
+    initialState
+  );
   // const [cities, setCities] = useState([]);
   // const [isLoading, setIsLoading] = useState(false);
   // const [currentCity, setCurrentCity] = useState({});
@@ -87,6 +84,7 @@ function CitiesProvider({ children }) {
   }, []);
 
   async function getCity(id) {
+    if (Number(id) === currentCity.id) return;
     try {
       dispatch({ type: "loading" });
       const res = await fetch(`${BASE_URL}/cities/${id}`);
@@ -118,7 +116,7 @@ function CitiesProvider({ children }) {
     } catch {
       dispatch({
         type: "rejected",
-        payload: "There was an error loading data... ",
+        payload: "There was an error creating the city... ",
       });
     }
   }
@@ -133,7 +131,7 @@ function CitiesProvider({ children }) {
     } catch {
       dispatch({
         type: "rejected",
-        payload: "There was an error deleting city... ",
+        payload: "There was an error deleting the city... ",
       });
     }
   }
@@ -147,6 +145,7 @@ function CitiesProvider({ children }) {
         getCity,
         createCity,
         deleteCity,
+        error,
       }}
     >
       {children}
